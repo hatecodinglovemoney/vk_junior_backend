@@ -1,2 +1,2 @@
 # vk_junior_backend
-Тестовое задания для VK Junior
+Тестовое заданиe для VK Junior
