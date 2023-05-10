@@ -1,14 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets
+from friendship.exceptions import AlreadyExistsError
+from friendship.exceptions import AlreadyFriendsError
+from friendship.models import Friend
+from friendship.models import FriendshipRequest
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from friendship.models import Friend, FriendshipRequest
-from friendship.exceptions import AlreadyExistsError, AlreadyFriendsError
 
-from .serializers import FriendshipRequestSerializer, FriendSerializer, FriendshipRequestResponseSerializer
-
+from .serializers import FriendSerializer
+from .serializers import FriendshipRequestResponseSerializer
+from .serializers import FriendshipRequestSerializer
 
 User = get_user_model()
 
@@ -81,11 +85,15 @@ class FriendViewSet(viewsets.ModelViewSet):
         elif FriendshipRequest.objects.filter(
                 from_user=requested_user, to_user=request.user
         ).exists():
-            return Response({'message': 'Пользователь у вас во входящих заявках.'})
+            return Response(
+                {'message': 'Пользователь у вас во входящих заявках.'}
+            )
         elif FriendshipRequest.objects.filter(
                 from_user=request.user, to_user=requested_user
         ).exists():
-            return Response({'message': 'Пользователь у вас в исходящих заявках.'})
+            return Response(
+                {'message': 'Пользователь у вас в исходящих заявках.'}
+            )
         else:
             return Response(
                 {'message': "None."},
@@ -115,7 +123,10 @@ class FriendViewSet(viewsets.ModelViewSet):
                 from_user=to_user, to_user=from_user, rejected__isnull=True
             )
             friend_request.accept()
-            return Response({'message': 'Дружба подтверждена'}, status.HTTP_201_CREATED)
+            return Response(
+                {'message': 'Дружба подтверждена'},
+                status.HTTP_201_CREATED
+            )
         except FriendshipRequest.DoesNotExist:
             pass
         try:
@@ -214,8 +225,6 @@ class FriendViewSet(viewsets.ModelViewSet):
         friendship_request.reject()
 
         return Response(
-            {
-                "message": "Запрос отклонен, пользователь НЕ добавлен в друзья."
-            },
+            {"message": "Запрос отклонен, пользователь НЕ добавлен в друзья."},
             status.HTTP_201_CREATED
         )
