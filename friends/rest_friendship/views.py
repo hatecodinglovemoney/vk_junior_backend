@@ -120,7 +120,8 @@ class FriendViewSet(viewsets.ModelViewSet):
         from_user = request.user
         try:
             friend_request = FriendshipRequest.objects.get(
-                from_user=to_user, to_user=from_user, rejected__isnull=True
+                from_user=to_user,
+                to_user=from_user
             )
             friend_request.accept()
             return Response(
